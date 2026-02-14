@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+:root {
+  /* Brand Palette */
+  --ahia-sunset: #ff7a00;
+  --ahia-red: #ff4b4b;
+  --ahia-gold: #ffc700;
+  --ahia-trust: #0062ff;
+  --ahia-success: #00c853;
+
+  /* Layout Tokens */
+  --radius-ahia: 12px;
+  --radius-ahia-lg: 24px;
+  --shadow-ahia: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Adaptive Surface Colors */
+  --background: #f8f9fa;
+  --foreground: #1a1a1b;
+  --card: #ffffff;
+}
+
+@theme inline {
+  --color-ahia-sunset: var(--ahia-sunset);
+  --color-ahia-red: var(--ahia-red);
+  --color-ahia-gold: var(--ahia-gold);
+  --color-ahia-trust: var(--ahia-trust);
+  --color-ahia-success: var(--ahia-success);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+
+  --radius-ahia: var(--radius-ahia);
+  --radius-ahia-lg: var(--radius-ahia-lg);
+
+  --shadow-ahia: var(--shadow-ahia);
+
+  --background-image-ahia-grad: linear-gradient(
+    135deg,
+    #ff7a00 0%,
+    #ff4b4b 100%
+  );
+  --font-fredoka: var(--font-fredoka);
+  --font-inter: var(--font-inter);
+}
+
+h1,
+h2,
+h3,
+.brand-text {
+  font-family: var(--font-fredoka);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+}

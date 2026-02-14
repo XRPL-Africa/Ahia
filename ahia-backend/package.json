@@ -1,0 +1,38 @@
+{
+  "name": "ahia-backend",
+  "version": "1.0.0",
+  "description": "Ahia market-place",
+  "keywords": [
+    "Ahia",
+    "Marketplace",
+    "Campus",
+    "Buying",
+    "selling"
+  ],
+  "homepage": "https://github.com/XRPL-Africa/Ahia#readme",
+  "bugs": {
+    "url": "https://github.com/XRPL-Africa/Ahia/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XRPL-Africa/Ahia.git"
+  },
+  "license": "ISC",
+  "author": "Blockchain Uniben X XRPL-Africa teams",
+  "type": "module",
+  "main": "server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.4.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.3",
+    "xrpl": "^4.6.0",
+    "zod": "^4.3.6"
+  }
+}
