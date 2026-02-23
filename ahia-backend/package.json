@@ -1,38 +1,52 @@
 {
   "name": "ahia-backend",
   "version": "1.0.0",
-  "description": "Ahia market-place",
-  "keywords": [
-    "Ahia",
-    "Marketplace",
-    "Campus",
-    "Buying",
-    "selling"
-  ],
-  "homepage": "https://github.com/XRPL-Africa/Ahia#readme",
-  "bugs": {
-    "url": "https://github.com/XRPL-Africa/Ahia/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/XRPL-Africa/Ahia.git"
-  },
-  "license": "ISC",
+  "description": "Ahia Marketplace Backend - XRPL Africa Collaboration",
   "author": "Blockchain Uniben X XRPL-Africa teams",
+  "license": "ISC",
   "type": "module",
-  "main": "server.ts",
+  "main": "dist/server.js",
+
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
+
   "dependencies": {
     "@prisma/client": "^7.4.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "helmet": "^8.1.0",
-    "js-cookie": "^3.0.5",
+    "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.3",
     "xrpl": "^4.6.0",
     "zod": "^4.3.6"
-  }
+  },
+
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.11.30",
+    "prisma": "^7.4.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.5"
+  },
+
+  "keywords": [
+    "Ahia",
+    "Marketplace",
+    "Campus",
+    "XRPL",
+    "Blockchain",
+    "Prisma",
+    "Redis"
+  ]
 }
