@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ahia — You're offline</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f8f9fa;
+      color: #1a1a1b;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 24px;
+      padding: 48px 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .icon { font-size: 56px; margin-bottom: 20px; }
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #1a1a1b; }
+    p { font-size: 15px; color: #6b7280; line-height: 1.6; margin-bottom: 28px; }
+    .brand { font-size: 28px; font-weight: 800; color: #ff7a00; margin-bottom: 32px; display: block; }
+    button {
+      background: #ff7a00;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    .hint { font-size: 12px; color: #9ca3af; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="brand">ahia</span>
+    <div class="icon">📡</div>
+    <h1>You're offline</h1>
+    <p>No internet connection right now. Your pending actions will sync automatically when you reconnect.</p>
+    <button onclick="window.location.reload()">Try again</button>
+    <p class="hint">Previously viewed listings are available from the main app</p>
+  </div>
+</body>
+</html>
