@@ -2,19 +2,27 @@
 // src/components/layout/Header.tsx
 // Original header + notification bell link + push teardown on logout
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useNotificationStore } from "@/store/useNotificationStore";
 import { Button } from "../ui/Button";
 import { Bell, Wallet, LogOut, ChevronDown, Menu, X, ShoppingBag, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import NotificationService from "@/services/notification.service";
 
+
 const Header = () => {
   const { user, logout } = useAuthStore();
+  const { unreadCount, fetchNotifications } = useNotificationStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // Fetch notifications whenever the logged-in user changes
+  useEffect(() => {
+    if (user?.id) fetchNotifications();
+  }, [user?.id]);
 
   const doLogout = async () => {
     if (user?.id) await NotificationService.teardown(user.id).catch(console.warn);
@@ -56,6 +64,11 @@ const Header = () => {
               {/* Notification bell → /user/notifications */}
               <Link href="/user/notifications" className="p-2 text-gray-400 hover:text-ahia-sunset relative">
                 <Bell size={22} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-ahia-sunset text-white text-[9px] font-bold font-fredoka rounded-full flex items-center justify-center leading-none">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </Link>
 
               <div className="group relative cursor-pointer flex items-center gap-2 ml-2">
