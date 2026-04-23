@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORIES, Category } from "@/src/types/listing";
+import { CATEGORIES, Category } from "@/types/listing";
 
 interface CategoryFilterProps {
   selected: Category;

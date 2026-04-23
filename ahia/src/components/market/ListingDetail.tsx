@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { FiArrowLeft, FiMessageCircle, FiDollarSign, FiClock, FiTag } from "react-icons/fi";
-import { Listing } from "@/src/types/listing";
-import { fetchListingById, fetchListings } from "@/src/services/listing.service";
+import { Listing } from "@/types/listing";
+import { fetchListingById, fetchListings } from "@/services/listing.service";
 import ImageCarousel from "./ImageCarousel";
 import SellerInfo from "./SellerInfo";
 import ListingCard from "./ListingCard";

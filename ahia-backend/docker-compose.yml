@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: ahia-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/ahia_db?schema=public
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - XRPL_NODE_URL=${XRPL_NODE_URL}
+      - XRPL_PLATFORM_ADDRESS=${XRPL_PLATFORM_ADDRESS}
+      - XRPL_PLATFORM_SEED=${XRPL_PLATFORM_SEED}
+    depends_on:
+      - db
+      - redis
+    networks:
+      - ahia-network
+    volumes:
+      - uploads:/app/uploads
+
+  db:
+    image: postgres:15-alpine
+    container_name: ahia-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ahia_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - ahia-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ahia-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ahia-network
+
+  # Development service
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ahia-dev
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/ahia_db?schema=public
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - uploads:/app/uploads
+    depends_on:
+      - db
+      - redis
+    networks:
+      - ahia-network
+    command: npm run dev
+
+volumes:
+  postgres-data:
+  redis-data:
+  uploads:
+
+networks:
+  ahia-network:
+    driver: bridge

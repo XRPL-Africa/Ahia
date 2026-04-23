@@ -14,7 +14,7 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
-  lastLogin: number | null; // Timestamp
+  lastLogin: number | null;
   login: (user: User, token: string) => void;
   logout: () => void;
 }
@@ -27,14 +27,26 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       lastLogin: null,
+
       login: (user, token) => {
         const now = Date.now();
-        // Set cookie for Middleware (7 days)
         Cookies.set("ahia-session", token, { expires: 7 });
         set({ user, token, lastLogin: now });
+
+        // Analytics — lazy import avoids circular dep at module load time
+        import("@/services/analytics.service").then(({ default: Analytics }) => {
+          Analytics.identify(user.id);
+          Analytics.trackLogin("email", user.campus);
+        });
       },
+
       logout: () => {
         Cookies.remove("ahia-session");
+
+        import("@/services/analytics.service").then(({ default: Analytics }) => {
+          Analytics.trackLogout();
+        });
+
         set({ user: null, token: null, lastLogin: null });
       },
     }),
@@ -44,7 +56,13 @@ export const useAuthStore = create<AuthState>()(
         if (state?.lastLogin) {
           const isExpired = Date.now() - state.lastLogin > SEVEN_DAYS_MS;
           if (isExpired) {
-            state.logout(); // Wipe state if older than 7 days
+            state.logout();
+          } else if (state.user) {
+            // Track session restore
+            import("@/services/analytics.service").then(({ default: Analytics }) => {
+              Analytics.identify(state.user!.id);
+              Analytics.track("session_restored", { campus: state.user!.campus });
+            });
           }
         }
       },

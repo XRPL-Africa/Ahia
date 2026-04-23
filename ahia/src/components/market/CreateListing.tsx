@@ -2,8 +2,8 @@
 
 import { useState, useRef, useCallback } from "react";
 import { FiArrowLeft, FiCamera, FiX, FiCheck } from "react-icons/fi";
-import { CATEGORIES } from "@/src/types/listing";
-import { createListing } from "@/src/services/listing.service";
+import { CATEGORIES } from "@/types/listing";
+import { createListing } from "@/services/listing.service";
 
 interface CreateListingProps {
   onBack: () => void;

@@ -9,24 +9,33 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start:prod": "npx prisma generate && npx prisma migrate deploy && node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.5.1",
     "cors": "^2.8.6",
+    "cron": "^3.1.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "express-rate-limit": "^7.5.0",
     "helmet": "^8.1.0",
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^1.4.5-lts.1",
+    "multer-storage-cloudinary": "^4.0.0",
     "pg": "^8.19.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^13.0.0",
+    "winston": "^3.17.0",
     "xrpl": "^4.6.0",
     "yamljs": "^0.3.0",
     "zod": "^4.3.6"
@@ -34,8 +43,10 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
+    "@types/cron": "^2.4.0",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/multer": "^1.4.12",
     "@types/node": "^20.11.30",
     "@types/pg": "^8.18.0",
     "@types/swagger-ui-express": "^4.1.8",
@@ -52,5 +63,8 @@
     "Blockchain",
     "Prisma",
     "Redis"
-  ]
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

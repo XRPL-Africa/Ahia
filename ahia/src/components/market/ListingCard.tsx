@@ -1,11 +1,16 @@
 "use client";
+// src/components/market/ListingCard.tsx
+// Updated: uses LazyImage for blur placeholder + IntersectionObserver lazy load
 
-import { Listing } from "@/src/types/listing";
+import { Listing } from "@/types/listing";
 import { FiStar } from "react-icons/fi";
+import LazyImage from "@/components/ui/LazyImage";
 
 interface ListingCardProps {
   listing: Listing;
   onClick: (listing: Listing) => void;
+  /** First few cards get priority loading (above the fold) */
+  priority?: boolean;
 }
 
 function formatPrice(amount: number): string {
@@ -24,13 +29,10 @@ function timeAgo(dateStr: string): string {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString("en-NG", {
-    month: "short",
-    day: "numeric",
-  });
+  return new Date(dateStr).toLocaleDateString("en-NG", { month: "short", day: "numeric" });
 }
 
-export default function ListingCard({ listing, onClick }: ListingCardProps) {
+export default function ListingCard({ listing, onClick, priority = false }: ListingCardProps) {
   return (
     <button
       type="button"
@@ -38,15 +40,16 @@ export default function ListingCard({ listing, onClick }: ListingCardProps) {
       className="group flex flex-col bg-card rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow text-left w-full"
       aria-label={`View ${listing.title} - ${formatPrice(listing.price)}`}
     >
-      {/* Thumbnail */}
-      <div className="relative aspect-square overflow-hidden bg-muted">
-        <img
+      {/* Thumbnail — lazy with blur placeholder */}
+      <div className="relative overflow-hidden">
+        <LazyImage
           src={listing.images[0]}
           alt={listing.title}
-          loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          aspect="1/1"
+          priority={priority}
+          className="group-hover:scale-105 transition-transform duration-300"
         />
-        <span className="absolute top-2 left-2 rounded-md bg-card/90 backdrop-blur-sm px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-card-foreground">
+        <span className="absolute top-2 left-2 rounded-md bg-card/90 backdrop-blur-sm px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium text-card-foreground z-10">
           {listing.condition}
         </span>
       </div>
@@ -59,8 +62,6 @@ export default function ListingCard({ listing, onClick }: ListingCardProps) {
         <p className="text-sm sm:text-base font-bold text-primary">
           {formatPrice(listing.price)}
         </p>
-
-        {/* Seller row */}
         <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 sm:mt-1">
           <span className="flex items-center justify-center size-4 sm:size-5 rounded-full bg-primary/10 text-[9px] sm:text-[10px] font-bold text-primary">
             {listing.seller.name.charAt(0)}
@@ -76,7 +77,6 @@ export default function ListingCard({ listing, onClick }: ListingCardProps) {
             </span>
           </span>
         </div>
-
         <span className="text-[10px] sm:text-[11px] text-muted-foreground">
           {timeAgo(listing.created_at)}
         </span>

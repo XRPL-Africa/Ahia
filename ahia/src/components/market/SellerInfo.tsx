@@ -1,6 +1,6 @@
 "use client";
 
-import { Seller } from "@/src/types/listing";
+import { Seller } from "@/types/listing";
 import { FiStar, FiShield } from "react-icons/fi";
 
 interface SellerInfoProps {

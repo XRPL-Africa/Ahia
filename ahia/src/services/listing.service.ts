@@ -1,10 +1,10 @@
 // src/services/listing.service.ts
+// Offline-aware: caches results, queues mutations, falls back to cache when offline
 
 import api from './api';
+import OfflineService from './offline.service';
 
-// ============================================
-// TYPES
-// ============================================
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Listing {
   id: string;
@@ -30,6 +30,7 @@ export interface PaginatedListings {
     total: number;
     pages: number;
   };
+  fromCache?: boolean; // true when serving offline cached data
 }
 
 export interface ListingFilters {
@@ -41,129 +42,163 @@ export interface ListingFilters {
   max_price?: number;
 }
 
-// ============================================
-// LISTING SERVICE
-// ============================================
+// ─── Service ──────────────────────────────────────────────────────────────────
 
 class ListingService {
   /**
-   * Fetch listings with filters and pagination
-   * GET /api/listings
+   * Fetch listings with filters and pagination.
+   * Online: fetches from API and updates cache.
+   * Offline: serves from cache with fromCache=true.
    */
   async fetchListings(filters: ListingFilters): Promise<PaginatedListings> {
-    try {
-      const {
-        campus_id,
-        page = 1,
-        limit = 20,
-        category,
-        min_price,
-        max_price,
-      } = filters;
+    const { campus_id, page = 1, limit = 20, category, min_price, max_price } = filters;
 
-      const params: Record<string, any> = { campus_id, page, limit };
+    // ── Offline path ─────────────────────────────────────────────────────────
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const cached = OfflineService.getCachedListingsFallback();
+      let filtered = cached;
+      if (category) filtered = filtered.filter((l) => l.category === category);
+      if (campus_id) filtered = filtered.filter((l) => l.campus_id === campus_id);
+      return {
+        listings: filtered.slice((page - 1) * limit, page * limit),
+        pagination: { page, limit, total: filtered.length, pages: Math.ceil(filtered.length / limit) },
+        fromCache: true,
+      };
+    }
+
+    // ── Online path ──────────────────────────────────────────────────────────
+    try {
+      const params: Record<string, unknown> = { campus_id, page, limit };
       if (category) params.category = category;
       if (min_price) params.min_price = min_price;
       if (max_price) params.max_price = max_price;
 
-      const response = await api.get<PaginatedListings>('/listings', {
-        params,
-      });
+      const response = await api.get<PaginatedListings>('/listings', { params });
+      const data = response.data;
 
-      console.log(` Fetched ${response.data.listings.length} listings`);
+      // Persist first-page results as offline cache
+      if (page === 1) {
+        OfflineService.cacheListings(data.listings);
+      }
 
-      return response.data;
-    } catch (error: any) {
-      console.error(
-        ' Fetch listings failed:',
-        error.response?.data || error.message
-      );
+      return data;
+    } catch (error: unknown) {
+      // Network failure mid-session — fall back to cache
+      const cached = OfflineService.getCachedListingsFallback();
+      if (cached.length > 0) {
+        console.warn('[ListingService] Network error — serving from cache');
+        return {
+          listings: cached.slice(0, limit),
+          pagination: { page: 1, limit, total: cached.length, pages: Math.ceil(cached.length / limit) },
+          fromCache: true,
+        };
+      }
       throw this.handleError(error);
     }
   }
 
   /**
-   * Get single listing by ID
+   * Get single listing by ID.
+   * Falls back to cached listing if offline.
    */
   async getListingById(id: string): Promise<Listing> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const cached = OfflineService.getCachedListingsFallback();
+      const found = cached.find((l) => l.id === id);
+      if (found) return found;
+      throw new Error('You are offline and this listing is not cached.');
+    }
+
     try {
       const response = await api.get<Listing>(`/listings/${id}`);
-      console.log('Fetched listing:', response.data.title);
       return response.data;
-    } catch (error: any) {
-      console.error(
-        ' Get listing failed:',
-        error.response?.data || error.message
-      );
+    } catch (error: unknown) {
+      // Try cache as fallback
+      const cached = OfflineService.getCachedListingsFallback();
+      const found = cached.find((l) => l.id === id);
+      if (found) return found;
       throw this.handleError(error);
     }
   }
 
   /**
-   * Create new listing
+   * Create listing.
+   * Offline: queues action, returns optimistic stub.
    */
   async createListing(listingData: Partial<Listing>): Promise<Listing> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      OfflineService.enqueue('CREATE_LISTING', 'POST', '/listings', listingData as Record<string, unknown>);
+      // Return optimistic stub so UI doesn't block
+      return {
+        id: `offline-${Date.now()}`,
+        status: 'active',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        ...listingData,
+      } as Listing;
+    }
+
     try {
       const response = await api.post<Listing>('/listings', listingData);
-      console.log(' Listing created:', response.data.title);
+      // Add to cache
+      const cached = OfflineService.getCachedListingsFallback();
+      OfflineService.cacheListings([response.data, ...cached]);
       return response.data;
-    } catch (error: any) {
-      console.error(
-        'Create listing failed:',
-        error.response?.data || error.message
-      );
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }
 
   /**
-   * Update existing listing
+   * Update listing.
+   * Offline: queues action, patches cache optimistically.
    */
-  async updateListing(
-    id: string,
-    updates: Partial<Listing>
-  ): Promise<Listing> {
+  async updateListing(id: string, updates: Partial<Listing>): Promise<Listing> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      OfflineService.enqueue(
+        'UPDATE_LISTING', 'PUT', `/listings/${id}`,
+        { id, ...updates } as Record<string, unknown>
+      );
+      OfflineService.patchCachedListing(id, updates);
+      const cached = OfflineService.getCachedListingsFallback();
+      return (cached.find((l) => l.id === id) ?? { id, ...updates }) as Listing;
+    }
+
     try {
       const response = await api.put<Listing>(`/listings/${id}`, updates);
-      console.log('Listing updated:', response.data.title);
+      OfflineService.patchCachedListing(id, response.data);
       return response.data;
-    } catch (error: any) {
-      console.error(
-        'Update listing failed:',
-        error.response?.data || error.message
-      );
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }
 
   /**
-   * Delete listing
+   * Delete listing.
+   * Offline: queues action, removes from cache optimistically.
    */
   async deleteListing(id: string): Promise<void> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      OfflineService.enqueue('DELETE_LISTING', 'DELETE', `/listings/${id}`, { id });
+      OfflineService.removeCachedListing(id);
+      return;
+    }
+
     try {
       await api.delete(`/listings/${id}`);
-      console.log(' Listing deleted');
-    } catch (error: any) {
-      console.error(
-        'Delete listing failed:',
-        error.response?.data || error.message
-      );
+      OfflineService.removeCachedListing(id);
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }
 
-  /**
-   * Handle and format API errors
-   */
-  private handleError(error: any): Error {
-    if (error.response) {
-      const message = error.response.data?.message || 'An error occurred';
-      return new Error(message);
-    } else if (error.request) {
-      return new Error('Network error. Please check your connection.');
-    } else {
-      return new Error(error.message || 'An unexpected error occurred');
-    }
+  // ─── Error handler ──────────────────────────────────────────────────────────
+
+  private handleError(error: unknown): Error {
+    const e = error as { response?: { data?: { message?: string } }; request?: unknown; message?: string };
+    if (e.response) return new Error(e.response.data?.message ?? 'An error occurred');
+    if (e.request) return new Error('Network error. Please check your connection.');
+    return new Error(e.message ?? 'An unexpected error occurred');
   }
 }
 

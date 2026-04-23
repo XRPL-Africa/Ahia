@@ -1,4 +1,4 @@
-import { Listing } from "@/src/types/listing";
+import { Listing } from "@/types/listing";
 
 export const mockListings: Listing[] = [
   {
