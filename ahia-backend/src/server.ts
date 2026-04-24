@@ -149,6 +149,10 @@ if (process.env.NODE_ENV === 'development') {
 app.use(notFoundHandler);
 app.use(errorHandler);
 
+
+
+
+
 // ============================================
 // SERVER STARTUP
 // ============================================
@@ -167,16 +171,20 @@ async function startServer() {
       logger.warn('Cloudinary not configured');
     }
 
+    // ✅ XRPL CONNECT ONCE
     try {
       await xrplService.connect();
-    } catch {
+      logger.info('XRPL connected');
+    } catch (err) {
       logger.warn('XRPL not connected');
     }
 
+    // ✅ START SERVER ONLY ONCE
     app.listen(PORT, () => {
-      logger.info(` Server running on http://localhost:${PORT}`);
-      logger.info(` Swagger docs: http://localhost:${PORT}/docs`);
+      logger.info(`Server running on http://localhost:${PORT}`);
+      logger.info(`Swagger docs: http://localhost:${PORT}/docs`);
     });
+
   } catch (error) {
     logger.error('Startup error:', error);
     process.exit(1);
@@ -215,6 +223,8 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason) => {
   logger.error(reason);
 });
+
+
 
 // START
 startServer();

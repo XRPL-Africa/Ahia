@@ -103,9 +103,12 @@ export class EscrowService {
     });
 
     // Create XRPL escrow for crypto payments
-    if (input.paymentMethod === 'CRYPTO_RLUSD') {
+ if (input.paymentMethod === 'CRYPTO_RLUSD') {
   try {
-    const xrplResult = await xrplService.commitFunds(amount.toString());
+    const xrplResult = await xrplService.commitFunds(
+      amount.toString(),
+      process.env.XRPL_PLATFORM_ADDRESS! // 🔥 IMPORTANT
+    );
 
     await prisma.escrow.update({
       where: { id: escrow.id },
@@ -113,8 +116,10 @@ export class EscrowService {
         escrowTxHash: xrplResult.hash,
       },
     });
+
   } catch (error) {
     logger.error('Failed to commit XRPL funds:', error);
+    throw new ApiError(500, 'XRPL_ERROR', 'Blockchain payment failed');
   }
 }
 
@@ -511,20 +516,25 @@ await xrplService.releaseFunds(
     if (escrow.status !== EscrowStatus.COMMITTED) {
       throw new ApiError(400, 'INVALID_ESCROW_STATE', 'Escrow cannot be cancelled at this stage');
     }
+if (escrow.paymentMethod === 'CRYPTO_RLUSD') {
+  try {
+    const buyer = await prisma.user.findUnique({
+      where: { id: escrow.buyerId },
+    });
 
-    if (escrow.paymentMethod === 'CRYPTO_RLUSD') {
- const buyer = await prisma.user.findUnique({
-  where: { id: escrow.buyerId },
-});
+    if (!buyer?.walletAddress) {
+      throw new ApiError(400, "BUYER_WALLET_MISSING", "Buyer has no wallet");
+    }
 
-if (!buyer?.walletAddress) {
-  throw new ApiError(400, "BUYER_WALLET_MISSING", "Buyer has no wallet");
-}
+    await xrplService.refundFunds(
+      buyer.walletAddress,
+      escrow.amount.toString()
+    );
 
-await xrplService.refundFunds(
-  buyer.walletAddress,
-  escrow.amount.toString()
-);
+  } catch (error) {
+    logger.error('XRPL refund error:', error);
+    throw new ApiError(500, 'XRPL_ERROR', 'Failed to refund funds');
+  }
 }
 
     const updatedEscrow = await prisma.$transaction(async (tx) => {
