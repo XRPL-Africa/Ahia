@@ -112,11 +112,12 @@ const swaggerOptions = {
   },
 
   // ✅ SUPPORT BOTH DEV (.ts) AND PROD (.js)
-  apis: [
+apis: [
   './src/routes/*.ts',
   './src/routes/**/*.ts',
-
-  ],
+  './dist/routes/*.js',
+  './dist/routes/**/*.js',
+],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);

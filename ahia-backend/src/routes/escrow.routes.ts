@@ -14,34 +14,110 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Escrow
- *   description: Escrow and payment endpoints
+ *   description: Escrow, payments, disputes, and lifecycle management
  */
 
-// Webhook (public but rate limited)
-router.post('/webhooks/paystack', webhookRateLimiter, escrowController.handlePaystackWebhook);
+/**
+ * @swagger
+ * /escrow/webhooks/paystack:
+ *   post:
+ *     summary: Paystack webhook handler
+ *     tags: [Escrow]
+ *     description: Handles payment confirmation from Paystack
+ */
+router.post(
+  '/webhooks/paystack',
+  webhookRateLimiter,
+  escrowController.handlePaystackWebhook
+);
 
-// Protected routes
 router.use(authenticate);
 
-// Get my escrows
+/**
+ * @swagger
+ * /escrow/my:
+ *   get:
+ *     summary: Get my escrows
+ *     tags: [Escrow]
+ *     security:
+ *       - bearerAuth: []
+ */
 router.get('/my', escrowController.getMyEscrows);
 
-// Create escrow (requires verification)
+/**
+ * @swagger
+ * /escrow:
+ *   post:
+ *     summary: Create escrow
+ *     tags: [Escrow]
+ *     security:
+ *       - bearerAuth: []
+ */
 router.post('/', requireVerified, escrowController.createEscrow);
 
-// Get escrow by ID
+/**
+ * @swagger
+ * /escrow/{id}:
+ *   get:
+ *     summary: Get escrow by ID
+ *     tags: [Escrow]
+ *     security:
+ *       - bearerAuth: []
+ */
 router.get('/:id', escrowController.getEscrowById);
 
-// Escrow actions
+/**
+ * @swagger
+ * /escrow/{id}/handover:
+ *   post:
+ *     summary: Mark item as handed over
+ *     tags: [Escrow]
+ */
 router.post('/:id/handover', escrowController.markHandover);
+
+/**
+ * @swagger
+ * /escrow/{id}/verify:
+ *   post:
+ *     summary: Verify and release funds
+ *     tags: [Escrow]
+ */
 router.post('/:id/verify', escrowController.verifyAndRelease);
+
+/**
+ * @swagger
+ * /escrow/{id}/freeze:
+ *   post:
+ *     summary: Freeze escrow
+ *     tags: [Escrow]
+ */
 router.post('/:id/freeze', escrowController.freezeEscrow);
+
+/**
+ * @swagger
+ * /escrow/{id}/cancel:
+ *   post:
+ *     summary: Cancel escrow
+ *     tags: [Escrow]
+ */
 router.post('/:id/cancel', escrowController.cancelEscrow);
 
-// Payment
+/**
+ * @swagger
+ * /escrow/{id}/pay:
+ *   post:
+ *     summary: Initiate escrow payment
+ *     tags: [Escrow]
+ */
 router.post('/:id/pay', requireVerified, escrowController.initiatePayment);
 
-// Dispute
+/**
+ * @swagger
+ * /escrow/disputes:
+ *   post:
+ *     summary: Open dispute
+ *     tags: [Escrow]
+ */
 router.post(
   '/disputes',
   requireVerified,
@@ -49,6 +125,5 @@ router.post(
   handleUploadError,
   escrowController.openDispute
 );
-
 
 export default router;
