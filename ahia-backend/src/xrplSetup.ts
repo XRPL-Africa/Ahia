@@ -1,21 +1,26 @@
-import { xrplService } from "./config/xrpl";
+import dotenv from "dotenv";
+dotenv.config();
+
+import { xrplService } from "./config/xrpl.js";
 
 async function setup() {
-  await xrplService.connect();
+await xrplService.connect();
 
-  const buyerSeed = "s...";
-  const sellerSeed = "s...";
+const buyer = xrplService.generateWallet();
+const seller = xrplService.generateWallet();
 
-  const buyerWallet = xrplService.getWalletFromSeed(buyerSeed);
-  const sellerWallet = xrplService.getWalletFromSeed(sellerSeed);
+await xrplService.fundWallet(buyer.address);
+await xrplService.fundWallet(seller.address);
 
-  // TRUSTLINES
-  await xrplService.createTrustline(buyerSeed);
-  await xrplService.createTrustline(sellerSeed);
-  await xrplService.createTrustline(process.env.XRPL_PLATFORM_SEED!);
+const buyerWallet = xrplService.getWallet(buyer.seed);
+const sellerWallet = xrplService.getWallet(seller.seed);
 
-  // ISSUE RLUSD
-  await xrplService.issueRLUSD(buyerWallet.classicAddress, "100");
+// STEP 1: trustlines FIRST
+await xrplService.setTrustLine(buyerWallet);
+await xrplService.setTrustLine(sellerWallet);
+
+// STEP 2: THEN issue RLUSD
+await xrplService.issueRLUSD(buyer.address, "100");
 
   console.log("✅ XRPL setup complete");
 

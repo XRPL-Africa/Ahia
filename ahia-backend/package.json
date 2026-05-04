@@ -7,7 +7,6 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start:prod": "npx prisma generate && npx prisma migrate deploy && node dist/server.js",
     "prisma:generate": "prisma generate",
@@ -15,7 +14,9 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
     "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix"
+    "lint:fix": "eslint src --ext .ts --fix",
+    "dev": "node --loader ts-node/esm src/server.ts",
+    "xrpl:setup": "node --loader ts-node/esm src/xrplSetup.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -52,6 +53,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
     "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
     "tsx": "^4.7.0",
     "typescript": "^5.4.5"
   },
@@ -65,6 +67,6 @@
     "Redis"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": "^18.0.0"
   }
 }
