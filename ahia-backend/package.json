@@ -16,7 +16,7 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "dev": "node --loader ts-node/esm src/server.ts",
-    "xrpl:setup": "node --loader ts-node/esm src/xrplSetup.ts"
+    "xrpl:setup": "tsx src/xrplSetup.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
