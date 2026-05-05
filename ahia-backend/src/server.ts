@@ -6,7 +6,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import { swaggerUi, swaggerSpec } from "./config/swagger.js";
 // Load env
 dotenv.config();
 
@@ -35,7 +35,7 @@ const PORT = process.env.PORT || 5000;
 // ============================================
 
 app.use(helmet());
-
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(cors({
   origin: true,
   credentials: true,

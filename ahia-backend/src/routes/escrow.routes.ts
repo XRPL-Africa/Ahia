@@ -111,6 +111,13 @@ router.post('/:id/cancel', escrowController.cancelEscrow);
  */
 router.post('/:id/pay', requireVerified, escrowController.initiatePayment);
 
+
+
+
+
+
+router.post('/:id/verify-payment', escrowController.verifyCryptoPayment);
+
 /**
  * @swagger
  * /escrow/disputes:
