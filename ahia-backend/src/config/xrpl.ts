@@ -215,11 +215,98 @@ class XRPLService {
       sequence: res.result.account_data.Sequence,
     };
   }
+
+
+  async transferRLUSD(
+  senderSeed: string,
+  destination: string,
+  amount: string
+) {
+  const client = await this.ensureClient();
+
+  const wallet = Wallet.fromSeed(senderSeed);
+
+  const tx = {
+    TransactionType: "Payment",
+    Account: wallet.address,
+    Destination: destination,
+
+    Amount: {
+      currency: RLUSD_CURRENCY,
+      issuer: RLUSD_ISSUER,
+      value: amount,
+    },
+  };
+
+  const prepared = await client.autofill(tx as any);
+
+  const signed = wallet.sign(prepared);
+
+  const result = await client.submitAndWait(signed.tx_blob);
+
+  return {
+    hash: signed.hash,
+    result,
+  };
+}
+
+
+async getRLUSDBalance(address: string) {
+  const client = await this.ensureClient();
+
+  const response = await client.request({
+    command: "account_lines",
+    account: address,
+  });
+
+  const line = response.result.lines.find(
+    (l: any) =>
+      l.currency === RLUSD_CURRENCY &&
+      l.account === RLUSD_ISSUER
+  );
+
+  return line?.balance || "0";
+}
+
+async transferRLUSD(
+  senderSeed: string,
+  destination: string,
+  amount: string
+) {
+  const client = await this.ensureClient();
+
+  const wallet = Wallet.fromSeed(senderSeed);
+
+  const tx = {
+    TransactionType: "Payment",
+    Account: wallet.address,
+    Destination: destination,
+
+    Amount: {
+      currency: RLUSD_CURRENCY,
+      issuer: RLUSD_ISSUER,
+      value: amount,
+    },
+  };
+
+  const prepared = await client.autofill(tx as any);
+
+  const signed = wallet.sign(prepared);
+
+  const result = await client.submitAndWait(signed.tx_blob);
+
+  return {
+    hash: signed.hash,
+    result,
+  };
+}
 }
 
 /**
  * EXPORT SINGLETON
  */
+
+
 export const xrplService = new XRPLService();
 export { RLUSD_CURRENCY, RLUSD_ISSUER };
 export default xrplService;

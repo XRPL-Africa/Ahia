@@ -1,6 +1,6 @@
 import { Client, Wallet, xrpToDrops } from "xrpl";
 import dotenv from "dotenv";
-import logger from "./logger.js";
+import logger from "../config/logger.js";
 
 dotenv.config();
 
@@ -105,6 +105,19 @@ class XRPLPaymentService {
   isValidAddress(address: string) {
     return /^r[1-9A-HJ-NP-Za-km-z]{25,34}$/.test(address);
   }
+
+
+  async verifyTransaction(hash:string)
+{
+   const client = await this.getClient();
+
+   const tx = await client.request({
+      command:"tx",
+      transaction: hash
+   });
+
+   return tx.result;
+}
 }
 
 export const xrplPaymentService = new XRPLPaymentService();

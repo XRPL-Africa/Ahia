@@ -5,7 +5,7 @@ import escrowRoutes from './escrow.routes.js';
 import verificationRoutes from './verification.routes.js';
 import adminRoutes from './admin.routes.js';
 import xrplRoutes from "./xrpl.routes.js";
-
+import paymentRoutes from "./payments.routes.js";
 const router = Router();
 
 // API version prefix
@@ -25,11 +25,18 @@ router.get('/health', (_req, res) => {
 });
 
 // API routes
+router.get("/debug-routes", (_req, res) => {
+  res.json({
+    payments: true
+  });
+});
+
 router.use(`/${API_VERSION}/auth`, authRoutes);
 router.use(`/${API_VERSION}/listings`, listingRoutes);
 router.use(`/${API_VERSION}/escrow`, escrowRoutes);
 router.use(`/${API_VERSION}/verification`, verificationRoutes);
 router.use(`/${API_VERSION}/admin`, adminRoutes);
 router.use("/xrpl", xrplRoutes);
-
+router.use(`/${API_VERSION}/payments`, paymentRoutes);
+console.log(paymentRoutes);
 export default router;

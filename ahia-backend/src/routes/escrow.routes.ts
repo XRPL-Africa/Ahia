@@ -116,7 +116,7 @@ router.post('/:id/pay', requireVerified, escrowController.initiatePayment);
 
 
 
-router.post('/:id/verify-payment', escrowController.verifyCryptoPayment);
+// router.post('/:id/verify-payment', escrowController.verifyCryptoPayment);
 
 /**
  * @swagger
@@ -131,6 +131,32 @@ router.post(
   uploadDisputeEvidence.array('evidence', 5),
   handleUploadError,
   escrowController.openDispute
+);
+
+
+console.log(
+  "handlePaystackWebhook:",
+  typeof escrowController.handlePaystackWebhook
+);
+
+// console.log(
+// //   "verifyCryptoPayment:",
+// //   typeof escrowController.verifyCryptoPayment
+// // );
+
+console.log(
+  "openDispute:",
+  typeof escrowController.openDispute
+);
+
+console.log(
+  "webhookRateLimiter:",
+  typeof webhookRateLimiter
+);
+
+console.log(
+  "handleUploadError:",
+  typeof handleUploadError
 );
 
 export default router;

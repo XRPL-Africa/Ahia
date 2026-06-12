@@ -112,25 +112,25 @@ enum NotificationType {
 // ============================================
 
 model Campus {
-  id          String   @id @default(uuid())
-  name        String
-  subdomain   String   @unique
-  slug        String   @unique
-  address     String?
-  city        String
-  state       String
-  country     String   @default("Nigeria")
-  logoUrl     String?
-  primaryColor String?
+  id             String   @id @default(uuid())
+  name           String
+  subdomain      String   @unique
+  slug           String   @unique
+  address        String?
+  city           String
+  state          String
+  country        String   @default("Nigeria")
+  logoUrl        String?
+  primaryColor   String?
   secondaryColor String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relations
-  users       User[]
-  listings    Listing[]
-  swapSpots   SwapSpot[]
+  users     User[]
+  listings  Listing[]
+  swapSpots SwapSpot[]
 
   @@index([subdomain])
   @@index([isActive])
@@ -138,56 +138,57 @@ model Campus {
 }
 
 model User {
-  id              String     @id @default(uuid())
-  email           String     @unique
-  phoneNumber     String?    @unique
-  passwordHash    String
-  
+  id           String  @id @default(uuid())
+  email        String  @unique
+  phoneNumber  String? @unique
+  passwordHash String
+
   // Profile
-  firstName       String
-  lastName        String
-  displayName     String?
-  avatarUrl       String?
-  bio             String?
-  
+  firstName   String
+  lastName    String
+  displayName String?
+  avatarUrl   String?
+  bio         String?
+
   // Campus & Role
-  campusId        String
-  campus          Campus     @relation(fields: [campusId], references: [id])
-  role            UserRole   @default(STUDENT)
-  status          UserStatus @default(PENDING_VERIFICATION)
-  
+  campusId String
+  campus   Campus     @relation(fields: [campusId], references: [id])
+  role     UserRole   @default(STUDENT)
+  status   UserStatus @default(PENDING_VERIFICATION)
+
   // Verification
-  verification    Verification?
-  
+  verification Verification?
+
   // Wallet
-  walletAddress   String?    @unique
+  walletAddress       String? @unique
   walletSeedEncrypted String? // Encrypted seed for embedded wallet
-  
+
   // Trust Score System
-  trustScore      Float      @default(0)
-  successfulTrades Int       @default(0)
-  totalTrades     Int        @default(0)
-  responseTimeAvg Int?       // Average response time in minutes
-  strikes         Int        @default(0)
-  
+  trustScore       Float @default(0)
+  successfulTrades Int   @default(0)
+  totalTrades      Int   @default(0)
+  responseTimeAvg  Int? // Average response time in minutes
+  strikes          Int   @default(0)
+
   // Timestamps
-  lastLoginAt     DateTime?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relations
-  listings        Listing[]  @relation("SellerListings")
-  bids            Bid[]      @relation("BuyerBids")
-  bidsReceived    Bid[]      @relation("SellerBids")
-  purchases       Transaction[] @relation("BuyerTransactions")
-  sales           Transaction[] @relation("SellerTransactions")
-  escrowAsBuyer   Escrow[]   @relation("BuyerEscrow")
-  escrowAsSeller  Escrow[]   @relation("SellerEscrow")
+  listings        Listing[]        @relation("SellerListings")
+  bids            Bid[]            @relation("BuyerBids")
+  bidsReceived    Bid[]            @relation("SellerBids")
+  purchases       Transaction[]    @relation("BuyerTransactions")
+  sales           Transaction[]    @relation("SellerTransactions")
+  escrowAsBuyer   Escrow[]         @relation("BuyerEscrow")
+  escrowAsSeller  Escrow[]         @relation("SellerEscrow")
   disputes        Dispute[]
-  reviewsGiven    Review[]   @relation("Reviewer")
-  reviewsReceived Review[]   @relation("Reviewee")
+  reviewsGiven    Review[]         @relation("Reviewer")
+  reviewsReceived Review[]         @relation("Reviewee")
   notifications   Notification[]
   walletBalance   WalletBalance?
+  OfframpRequest  OfframpRequest[]
 
   @@index([campusId])
   @@index([status])
@@ -197,25 +198,25 @@ model User {
 }
 
 model Verification {
-  id              String             @id @default(uuid())
-  userId          String             @unique
-  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Documents
-  idCardUrl       String
-  idCardPublicId  String             // Cloudinary public ID
+  idCardUrl           String
+  idCardPublicId      String // Cloudinary public ID
   portalScreenshotUrl String?
-  studentIdNumber String
-  
+  studentIdNumber     String
+
   // Verification Details
   status          VerificationStatus @default(PENDING)
-  reviewedBy      String?            // Admin ID
+  reviewedBy      String? // Admin ID
   reviewedAt      DateTime?
   rejectionReason String?
-  
+
   // Metadata
-  submittedAt     DateTime           @default(now())
-  
+  submittedAt DateTime @default(now())
+
   @@index([status])
   @@index([userId])
   @@map("verifications")
@@ -226,49 +227,49 @@ model Verification {
 // ============================================
 
 model Listing {
-  id              String        @id @default(uuid())
-  
-  // Relations
-  sellerId        String
-  seller          User          @relation("SellerListings", fields: [sellerId], references: [id])
-  campusId        String
-  campus          Campus        @relation(fields: [campusId], references: [id])
-  
-  // Details
-  title           String
-  description     String
-  category        String
-  condition       String        // new, like_new, good, fair, poor
-  
-  // Pricing
-  listingType     ListingType
-  buyNowPrice     Decimal?      @db.Decimal(18, 8)
-  startingBid     Decimal?      @db.Decimal(18, 8)
-  reservePrice    Decimal?      @db.Decimal(18, 8)
-  currentBid      Decimal?      @db.Decimal(18, 8)
-  
-  // Status
-  status          ListingStatus @default(ACTIVE)
-  expiresAt       DateTime?
-  
-  // Media
-  images          ListingImage[]
-  
-  // Location
-  swapSpotId      String?
-  swapSpot        SwapSpot?     @relation(fields: [swapSpotId], references: [id])
-  
-  // Metadata
-  viewCount       Int           @default(0)
-  bidCount        Int           @default(0)
-  
-  // Timestamps
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id String @id @default(uuid())
 
   // Relations
-  bids            Bid[]
-  escrow          Escrow?
+  sellerId String
+  seller   User   @relation("SellerListings", fields: [sellerId], references: [id])
+  campusId String
+  campus   Campus @relation(fields: [campusId], references: [id])
+
+  // Details
+  title       String
+  description String
+  category    String
+  condition   String // new, like_new, good, fair, poor
+
+  // Pricing
+  listingType  ListingType
+  buyNowPrice  Decimal?    @db.Decimal(18, 8)
+  startingBid  Decimal?    @db.Decimal(18, 8)
+  reservePrice Decimal?    @db.Decimal(18, 8)
+  currentBid   Decimal?    @db.Decimal(18, 8)
+
+  // Status
+  status    ListingStatus @default(ACTIVE)
+  expiresAt DateTime?
+
+  // Media
+  images ListingImage[]
+
+  // Location
+  swapSpotId String?
+  swapSpot   SwapSpot? @relation(fields: [swapSpotId], references: [id])
+
+  // Metadata
+  viewCount Int @default(0)
+  bidCount  Int @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  bids   Bid[]
+  escrow Escrow?
 
   @@index([sellerId])
   @@index([campusId])
@@ -280,64 +281,64 @@ model Listing {
 }
 
 model ListingImage {
-  id          String   @id @default(uuid())
-  listingId   String
-  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  url         String
-  publicId    String   // Cloudinary public ID
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String // Cloudinary public ID
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
 
   @@index([listingId])
   @@map("listing_images")
 }
 
 model SwapSpot {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   campusId    String
-  campus      Campus    @relation(fields: [campusId], references: [id])
+  campus      Campus   @relation(fields: [campusId], references: [id])
   name        String
   description String?
-  location    String    // e.g., "Faculty of Engineering, Ground Floor"
-  coordinates String?   // lat,lng
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
+  location    String // e.g., "Faculty of Engineering, Ground Floor"
+  coordinates String? // lat,lng
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
 
-  listings    Listing[]
+  listings Listing[]
 
   @@index([campusId])
   @@map("swap_spots")
 }
 
 model Bid {
-  id          String     @id @default(uuid())
-  
-  // Relations
-  listingId   String
-  listing     Listing    @relation(fields: [listingId], references: [id])
-  buyerId     String
-  buyer       User       @relation("BuyerBids", fields: [buyerId], references: [id])
-  sellerId    String
-  seller      User       @relation("SellerBids", fields: [sellerId], references: [id])
-  
-  // Details
-  amount      Decimal    @db.Decimal(18, 8)
-  message     String?
-  status      BidStatus  @default(PENDING)
-  
-  // Counter offer
-  counterAmount Decimal? @db.Decimal(18, 8)
-  counterMessage String?
-  
-  // Expiry
-  expiresAt   DateTime?
-  
-  // Timestamps
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id String @id @default(uuid())
 
   // Relations
-  escrow      Escrow?
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+  buyerId   String
+  buyer     User    @relation("BuyerBids", fields: [buyerId], references: [id])
+  sellerId  String
+  seller    User    @relation("SellerBids", fields: [sellerId], references: [id])
+
+  // Details
+  amount  Decimal   @db.Decimal(18, 8)
+  message String?
+  status  BidStatus @default(PENDING)
+
+  // Counter offer
+  counterAmount  Decimal? @db.Decimal(18, 8)
+  counterMessage String?
+
+  // Expiry
+  expiresAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  escrow Escrow?
 
   @@index([listingId])
   @@index([buyerId])
@@ -351,46 +352,46 @@ model Bid {
 // ============================================
 
 model Escrow {
-  id              String         @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Relations
-  listingId       String         @unique
-  listing         Listing        @relation(fields: [listingId], references: [id])
-  bidId           String?        @unique
-  bid             Bid?           @relation(fields: [bidId], references: [id])
-  buyerId         String
-  buyer           User           @relation("BuyerEscrow", fields: [buyerId], references: [id])
-  sellerId        String
-  seller          User           @relation("SellerEscrow", fields: [sellerId], references: [id])
-  
+  listingId String  @unique
+  listing   Listing @relation(fields: [listingId], references: [id])
+  bidId     String? @unique
+  bid       Bid?    @relation(fields: [bidId], references: [id])
+  buyerId   String
+  buyer     User    @relation("BuyerEscrow", fields: [buyerId], references: [id])
+  sellerId  String
+  seller    User    @relation("SellerEscrow", fields: [sellerId], references: [id])
+
   // Payment Details
-  amount          Decimal        @db.Decimal(18, 8)
-  platformFee     Decimal        @db.Decimal(18, 8)
-  paymentMethod   PaymentMethod
-  
+  amount        Decimal       @db.Decimal(18, 8)
+  platformFee   Decimal       @db.Decimal(18, 8)
+  paymentMethod PaymentMethod
+
   // XRPL Specific
-  escrowSequence  Int?           // XRPL escrow sequence number
-  escrowTxHash    String?        // XRPL transaction hash
-  
+  escrowSequence Int? // XRPL escrow sequence number
+  escrowTxHash   String? // XRPL transaction hash
+
   // Status
-  status          EscrowStatus   @default(COMMITTED)
-  
+  status EscrowStatus @default(COMMITTED)
+
   // Timeline
-  createdAt       DateTime       @default(now())
-  handoverAt      DateTime?      // When seller marks as handed over
-  inspectionEndsAt DateTime?     // 14 days from handover
-  frozenAt        DateTime?
-  frozenReason    String?
-  frozenExpiryAt  DateTime?
-  completedAt     DateTime?
-  refundedAt      DateTime?
-  
+  createdAt        DateTime  @default(now())
+  handoverAt       DateTime? // When seller marks as handed over
+  inspectionEndsAt DateTime? // 14 days from handover
+  frozenAt         DateTime?
+  frozenReason     String?
+  frozenExpiryAt   DateTime?
+  completedAt      DateTime?
+  refundedAt       DateTime?
+
   // Extensions
-  extensionCount  Int            @default(0)
-  
+  extensionCount Int @default(0)
+
   // Relations
-  transactions    Transaction[]
-  dispute         Dispute?
+  transactions Transaction[]
+  dispute      Dispute?
 
   @@index([buyerId])
   @@index([sellerId])
@@ -400,35 +401,35 @@ model Escrow {
 }
 
 model Transaction {
-  id              String          @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Relations
-  escrowId        String?
-  escrow          Escrow?         @relation(fields: [escrowId], references: [id])
-  buyerId         String?
-  buyer           User?           @relation("BuyerTransactions", fields: [buyerId], references: [id])
-  sellerId        String?
-  seller          User?           @relation("SellerTransactions", fields: [sellerId], references: [id])
-  
+  escrowId String?
+  escrow   Escrow? @relation(fields: [escrowId], references: [id])
+  buyerId  String?
+  buyer    User?   @relation("BuyerTransactions", fields: [buyerId], references: [id])
+  sellerId String?
+  seller   User?   @relation("SellerTransactions", fields: [sellerId], references: [id])
+
   // Details
-  type            TransactionType
-  amount          Decimal         @db.Decimal(18, 8)
-  currency        String          @default("RLUSD")
-  
+  type     TransactionType
+  amount   Decimal         @db.Decimal(18, 8)
+  currency String          @default("RLUSD")
+
   // Payment Method Specific
-  paymentMethod   PaymentMethod?
-  paystackRef     String?         // Paystack reference
-  xrplTxHash      String?         // XRPL transaction hash
-  
+  paymentMethod PaymentMethod?
+  paystackRef   String? // Paystack reference
+  xrplTxHash    String? // XRPL transaction hash
+
   // Status
-  status          PaymentStatus   @default(PENDING)
-  
+  status PaymentStatus @default(PENDING)
+
   // Metadata
-  metadata        Json?
-  
+  metadata Json?
+
   // Timestamps
-  createdAt       DateTime        @default(now())
-  completedAt     DateTime?
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
 
   @@index([escrowId])
   @@index([buyerId])
@@ -439,22 +440,22 @@ model Transaction {
 }
 
 model WalletBalance {
-  id              String   @id @default(uuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Balances (in RLUSD)
-  available       Decimal  @default(0) @db.Decimal(18, 8)
-  pending         Decimal  @default(0) @db.Decimal(18, 8)
-  
+  available Decimal @default(0) @db.Decimal(18, 8)
+  pending   Decimal @default(0) @db.Decimal(18, 8)
+
   // Off-ramp Details
-  bankName        String?
-  accountNumber   String?
-  accountName     String?
-  
+  bankName      String?
+  accountNumber String?
+  accountName   String?
+
   // Timestamps
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@map("wallet_balances")
@@ -465,28 +466,28 @@ model WalletBalance {
 // ============================================
 
 model Dispute {
-  id              String        @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Relations
-  escrowId        String        @unique
-  escrow          Escrow        @relation(fields: [escrowId], references: [id])
-  raisedById      String
-  raisedBy        User          @relation(fields: [raisedById], references: [id])
-  
+  escrowId   String @unique
+  escrow     Escrow @relation(fields: [escrowId], references: [id])
+  raisedById String
+  raisedBy   User   @relation(fields: [raisedById], references: [id])
+
   // Details
-  reason          String
-  description     String
-  evidenceUrls    String[]      // Array of Cloudinary URLs
-  
+  reason       String
+  description  String
+  evidenceUrls String[] // Array of Cloudinary URLs
+
   // Resolution
-  status          DisputeStatus @default(OPEN)
-  resolution      String?
-  resolvedBy      String?       // Admin ID
-  resolvedAt      DateTime?
-  
+  status     DisputeStatus @default(OPEN)
+  resolution String?
+  resolvedBy String? // Admin ID
+  resolvedAt DateTime?
+
   // Timestamps
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([escrowId])
   @@index([raisedById])
@@ -495,25 +496,25 @@ model Dispute {
 }
 
 model Review {
-  id          String   @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Relations
-  reviewerId  String
-  reviewer    User     @relation("Reviewer", fields: [reviewerId], references: [id])
-  revieweeId  String
-  reviewee    User     @relation("Reviewee", fields: [revieweeId], references: [id])
-  
+  reviewerId String
+  reviewer   User   @relation("Reviewer", fields: [reviewerId], references: [id])
+  revieweeId String
+  reviewee   User   @relation("Reviewee", fields: [revieweeId], references: [id])
+
   // Details
-  rating      Int      // 1-5
-  comment     String?
-  tradeId     String?  // Reference to the escrow/transaction
-  
+  rating  Int // 1-5
+  comment String?
+  tradeId String? // Reference to the escrow/transaction
+
   // Flags
-  isVerified  Boolean  @default(false) // Verified purchase
-  isFlagged   Boolean  @default(false) // Flagged for fake review
-  
+  isVerified Boolean @default(false) // Verified purchase
+  isFlagged  Boolean @default(false) // Flagged for fake review
+
   // Timestamps
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([reviewerId])
   @@index([revieweeId])
@@ -526,21 +527,21 @@ model Review {
 // ============================================
 
 model Notification {
-  id          String           @id @default(uuid())
-  userId      String
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  type        NotificationType
-  title       String
-  message     String
-  data        Json?            // Additional payload
-  
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    NotificationType
+  title   String
+  message String
+  data    Json? // Additional payload
+
   // Status
-  isRead      Boolean          @default(false)
-  readAt      DateTime?
-  
+  isRead Boolean   @default(false)
+  readAt DateTime?
+
   // Timestamps
-  createdAt   DateTime         @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([type])
@@ -553,20 +554,49 @@ model Notification {
 // ============================================
 
 model AuditLog {
-  id          String   @id @default(uuid())
-  userId      String?
-  action      String
-  entityType  String   // e.g., "User", "Escrow", "Listing"
-  entityId    String?
-  oldValue    Json?
-  newValue    Json?
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  entityType String // e.g., "User", "Escrow", "Listing"
+  entityId   String?
+  oldValue   Json?
+  newValue   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
 
   @@index([userId])
   @@index([action])
   @@index([entityType])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+model OfframpRequest {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  amountRLUSD Decimal @db.Decimal(18, 8)
+
+  amountNGN Decimal @db.Decimal(18, 2)
+
+  bankName      String
+  accountName   String
+  accountNumber String
+
+  status PaymentStatus @default(PENDING)
+
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@map("offramp_requests")
+}
+
+enum OfframpStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
 }

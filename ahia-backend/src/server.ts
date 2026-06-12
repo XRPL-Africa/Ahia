@@ -1,15 +1,14 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import swaggerUi from 'swagger-ui-express';
-import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerJsdoc from "swagger-jsdoc";
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { swaggerUi, swaggerSpec } from "./config/swagger.js";
+// import { swaggerSpec } from "./config/swagger.js";
 // Load env
 dotenv.config();
-
+import route from "./routes/index.js";
 // Configs
 import { connectDatabase } from './config/database.js';
 import { redis } from './config/redis.js';
@@ -22,7 +21,9 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { expressRateLimiter } from './middleware/rateLimiter.js';
 
 // Routes
-import routes from './routes/index.js';
+// import routes from "./routes/listing.routes.js";
+import { swaggerUi } from './config/swagger.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,7 +36,7 @@ const PORT = process.env.PORT || 5000;
 // ============================================
 
 app.use(helmet());
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(cors({
   origin: true,
   credentials: true,
@@ -133,7 +134,9 @@ app.get('/docs.json', (_req, res) => {
 // ROUTES
 // ============================================
 
-app.use('/api', routes);
+// app.use('/api', routes);
+app.use('/api', route);
+
 
 // ============================================
 // STATIC FILES

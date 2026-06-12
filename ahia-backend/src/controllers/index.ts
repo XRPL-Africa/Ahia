@@ -4,3 +4,6 @@ export * from './listing.controller.js';
 export * from './escrow.controller.js';
 export * from './verification.controller.js';
 export * from './admin.controller.js';
+export * from './payments.controller.js';
+
+

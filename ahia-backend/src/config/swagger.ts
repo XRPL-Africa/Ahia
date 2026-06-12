@@ -16,9 +16,14 @@ const options: swaggerJSDoc.Options = {
     ],
   },
 
-  // ⚠️ VERY IMPORTANT
-  apis: ["./src/routes/*.ts"], // for dev (ts-node)
-  // apis: ["./dist/routes/*.js"], // for production (compiled)
+//   // ⚠️ VERY IMPORTANT
+//   apis: ["./src/routes/*.ts"], // for dev (ts-node)
+//   // apis: ["./dist/routes/*.js"], // for production (compiled)
+
+apis: [
+  "./src/routes/*.ts",
+  "./src/routes/**/*.ts"
+]
 };
 
 const swaggerSpec = swaggerJSDoc(options);
