@@ -70,6 +70,16 @@ router.use(authenticate);
  *     responses:
  *       201:
  *         description: Escrow created
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: true
+ *               data:
+ *                 escrow:
+ *                   id: esc_123
+ *                 paymentInstructions:
+ *                   wallet: rXXXXXXXXXXXXXXXX
+ *                   destinationTag: 413287
  */
 router.post("/create", paymentsController.create);
 

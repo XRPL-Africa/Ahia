@@ -5,6 +5,9 @@ import swaggerJsdoc from "swagger-jsdoc";
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import webhookService
+from "./services/webhook.service.js";
+import webhooksRoutes from "./routes/webhooks.routes.js";
 // import { swaggerSpec } from "./config/swagger.js";
 // Load env
 dotenv.config();
@@ -53,6 +56,11 @@ app.use((req, _res, next) => {
   next();
 });
 
+
+// app.use(
+//     "/api/v1/webhooks",
+//     webhooksRoutes
+// );
 // ============================================
 // SWAGGER SETUP (FIXED)
 // ============================================
@@ -183,6 +191,13 @@ async function startServer() {
       logger.warn('XRPL not connected');
     }
 
+
+    await webhookService.start();
+
+logger.info(
+    "XRPL Webhook Listening"
+);   
+
     // ✅ START SERVER ONLY ONCE
     app.listen(PORT, () => {
       logger.info(`Server running on http://localhost:${PORT}`);
@@ -205,7 +220,7 @@ async function gracefulShutdown(signal: string) {
   try {
     const { disconnectDatabase } = await import('./config/database.js');
     await disconnectDatabase();
-
+    await webhookService.stop();
     await redis.quit();
     await xrplService.disconnect();
 

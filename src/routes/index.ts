@@ -6,6 +6,7 @@ import verificationRoutes from './verification.routes.js';
 import adminRoutes from './admin.routes.js';
 import xrplRoutes from "./xrpl.routes.js";
 import paymentRoutes from "./payments.routes.js";
+import webhooksRoutes from "./webhooks.routes.js";
 const router = Router();
 
 // API version prefix
@@ -38,5 +39,6 @@ router.use(`/${API_VERSION}/verification`, verificationRoutes);
 router.use(`/${API_VERSION}/admin`, adminRoutes);
 router.use("/xrpl", xrplRoutes);
 router.use(`/${API_VERSION}/payments`, paymentRoutes);
+router.use(`/${API_VERSION}/webhooks`, webhooksRoutes);
 console.log(paymentRoutes);
 export default router;

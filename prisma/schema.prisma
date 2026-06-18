@@ -393,6 +393,8 @@ model Escrow {
   transactions Transaction[]
   dispute      Dispute?
 
+  destinationTag Int? @unique
+
   @@index([buyerId])
   @@index([sellerId])
   @@index([status])

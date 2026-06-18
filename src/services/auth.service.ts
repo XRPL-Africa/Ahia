@@ -6,6 +6,7 @@ import { hashPassword, comparePassword } from '../utils/helpers.js';
 import { generateTokens } from '../middleware/auth.js';
 import { ApiError, Errors } from '../middleware/errorHandler.js';
 import { UserStatus, UserRole } from '@prisma/client';
+import { encryptSeed } from "../utils/encryption.js";
 import type {
   RegisterInput,
   LoginInput,
@@ -50,40 +51,46 @@ export class AuthService {
     const passwordHash = await hashPassword(input.password);
 
     // Generate XRPL wallet for user
-    const wallet = xrplService.generateWallet();
+    // Generate XRPL wallet
+const wallet = xrplService.generateWallet();
 
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        email: input.email,
-        passwordHash,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        phoneNumber: input.phoneNumber,
-        campusId: input.campusId,
-        walletAddress: wallet.address,
-        walletSeedEncrypted: wallet.seed, // TODO: Encrypt this
-        status: UserStatus.PENDING_VERIFICATION,
-        role: UserRole.STUDENT,
-      },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        displayName: true,
-        avatarUrl: true,
-        bio: true,
-        campusId: true,
-        role: true,
-        status: true,
-        trustScore: true,
-        successfulTrades: true,
-        totalTrades: true,
-        walletAddress: true,
-        createdAt: true,
-      },
-    });
+const user = await prisma.user.create({
+  data: {
+    email: input.email,
+    passwordHash,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    phoneNumber: input.phoneNumber,
+    campusId: input.campusId,
+
+    walletAddress: wallet.address,
+
+    walletSeedEncrypted: encryptSeed(
+      wallet.seed
+    ),
+
+    status: UserStatus.PENDING_VERIFICATION,
+    role: UserRole.STUDENT,
+  },
+
+  select: {
+    id: true,
+    email: true,
+    firstName: true,
+    lastName: true,
+    displayName: true,
+    avatarUrl: true,
+    bio: true,
+    campusId: true,
+    role: true,
+    status: true,
+    trustScore: true,
+    successfulTrades: true,
+    totalTrades: true,
+    walletAddress: true,
+    createdAt: true,
+  },
+});
 
     // Fund wallet on testnet (for development)
     if (process.env.XRPL_NODE_URL?.includes('test')) {

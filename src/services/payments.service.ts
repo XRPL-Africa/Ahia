@@ -2,31 +2,51 @@ import prisma from "../config/database.js";
 import xrplService from "../config/xrpl.js";
 import xrplPaymentService
   from "./xrplPayment.service.js";
-
+import {
+    generateDestinationTag
+} from "../utils/destinationTag.js";
   
 export class PaymentsService {
 
-  async createEscrow(data: any) {
+async createEscrow(data: any) {
 
     const platformFee =
-      Number(data.amount) * 0.05;
+        Number(data.amount) * 0.05;
 
-    return prisma.escrow.create({
-      data: {
-        listingId: data.listingId,
-        buyerId: data.buyerId,
-        sellerId: data.sellerId,
+    const destinationTag =
+        generateDestinationTag();
 
-        amount: data.amount,
+    const escrow =
+        await prisma.escrow.create({
+            data: {
+                listingId: data.listingId,
+                buyerId: data.buyerId,
+                sellerId: data.sellerId,
+                amount: data.amount,
+                platformFee,
+                paymentMethod: data.paymentMethod,
+                destinationTag,
+                status: "COMMITTED"
+            }
+        });
 
-        platformFee,
+    return {
 
-        paymentMethod: data.paymentMethod,
+        escrow,
 
-        status: "COMMITTED"
-      }
-    });
-  }
+        paymentInstructions: {
+
+            wallet:
+                process.env.XRPL_PLATFORM_ADDRESS,
+
+            destinationTag:
+                escrow.destinationTag
+
+        }
+
+    };
+
+}
 
  async confirmPayment(
   escrowId: string,
@@ -88,6 +108,8 @@ export class PaymentsService {
       "Invalid destination wallet"
     );
   }
+
+  
 
   // ------------------------------------------------
   // 4. BUYER WALLET CHECK
