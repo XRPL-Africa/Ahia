@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -78,7 +78,7 @@ export default function ReportScheduler({
           {/* Frequency */}
           <div className="space-y-2">
             <Label className="text-sm font-medium text-foreground">Frequency</Label>
-            <RadioGroup value={frequency} onValueChange={(v: any) => setFrequency(v)}>
+            <RadioGroup value={frequency} onValueChange={(v: "daily" | "weekly" | "monthly") => setFrequency(v)}>
               <div className="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-50">
                 <RadioGroupItem value="daily" id="daily" />
                 <Label htmlFor="daily" className="cursor-pointer">

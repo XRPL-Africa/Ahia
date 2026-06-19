@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -66,7 +66,7 @@ export default function DisputeDecisionForm({
           {/* Decision Options */}
           <div className="space-y-3">
             <div className="text-sm font-medium text-foreground">Release escrow to:</div>
-            <RadioGroup value={decision} onValueChange={(v: any) => setDecision(v)}>
+            <RadioGroup value={decision} onValueChange={(value: "buyer" | "seller" | "refund") => setDecision(value)}>
               <div className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                 <RadioGroupItem value="buyer" id="buyer" />
                 <Label htmlFor="buyer" className="flex-1 cursor-pointer">

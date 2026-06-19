@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useNotificationStore } from "@/store/useNotificationStore";
-import { Button } from "../ui/Button";
+import { Button } from "@/components/ui/Button";
 import { Bell, Wallet, LogOut, ChevronDown, Menu, X, ShoppingBag, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import NotificationService from "@/services/notification.service";
@@ -48,8 +48,12 @@ const Header = () => {
               <Link href="/how-it-works" className="text-sm font-fredoka font-medium text-gray-500 hover:text-ahia-sunset transition-colors">Safety-Lock</Link>
               <Link href="/campuses" className="text-sm font-fredoka font-medium text-gray-500 hover:text-ahia-sunset transition-colors">Campuses</Link>
               <div className="flex items-center gap-3 border-l pl-6 border-gray-100">
-                <Link href="/signin"><Button variant="ghost" className="font-fredoka">Sign In</Button></Link>
-                <Link href="/signup"><Button variant="default" className="font-fredoka px-6 bg-ahia-sunset text-white hover:opacity-90">Join</Button></Link>
+                <Button asChild variant="ghost" className="font-fredoka">
+                  <Link href="/signin">Sign In</Link>
+                </Button>
+                <Button asChild variant="default" className="font-fredoka px-6 bg-ahia-sunset text-white hover:opacity-90">
+                  <Link href="/signup">Join</Link>
+                </Button>
               </div>
             </div>
           ) : (
@@ -109,8 +113,12 @@ const Header = () => {
                   <Link onClick={toggleMenu} href="/how-it-works" className="text-2xl font-fredoka font-bold text-gray-800 flex items-center gap-3"><ShieldCheck className="text-ahia-sunset" /> How it Works</Link>
                   <Link onClick={toggleMenu} href="/campuses" className="text-2xl font-fredoka font-bold text-gray-800 flex items-center gap-3"><ShoppingBag className="text-ahia-sunset" /> Marketplaces</Link>
                   <hr className="border-gray-100" />
-                  <Link onClick={toggleMenu} href="/signin"><Button variant="ghost" className="w-full text-xl font-fredoka py-4">Sign In</Button></Link>
-                  <Link onClick={toggleMenu} href="/signup"><Button variant="default" className="w-full text-xl font-fredoka py-4 bg-ahia-sunset text-white hover:opacity-90">Join Ahia</Button></Link>
+                  <Button asChild variant="ghost" className="w-full text-xl font-fredoka py-4">
+                    <Link onClick={toggleMenu} href="/signin">Sign In</Link>
+                  </Button>
+                  <Button asChild variant="default" className="w-full text-xl font-fredoka py-4 bg-ahia-sunset text-white hover:opacity-90">
+                    <Link onClick={toggleMenu} href="/signup">Join Ahia</Link>
+                  </Button>
                 </>
               ) : (
                 <>
