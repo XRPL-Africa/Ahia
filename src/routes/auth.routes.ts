@@ -6,6 +6,7 @@ import {
   uploadAvatar,
   handleUploadError,
 } from '../middleware/index.js';
+import { generateCsrfToken } from '../middleware/security.js';
 
 const router = Router();
 
@@ -163,5 +164,27 @@ router.post(
   handleUploadError,
   authController.updateProfile
 );
+
+/**
+ * @swagger
+ * /auth/csrf:
+ *   get:
+ *     summary: Get a CSRF token for use in subsequent state-mutating requests
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: CSRF token issued
+ */
+router.get('/csrf', (_req, res) => {
+  const token = generateCsrfToken();
+  // Set non-HttpOnly cookie so JS can read it
+  res.cookie('csrf-token', token, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 60 * 60 * 1000, // 1 hour
+  });
+  res.json({ success: true, message: 'CSRF token issued', data: { token } });
+});
 
 export default router;

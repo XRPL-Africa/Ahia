@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { listingController } from '../controllers/listing.controller.js';
+import { searchController } from '../controllers/search.controller.js';
 import {
   authenticate,
   optionalAuth,
@@ -29,6 +30,54 @@ const router = Router();
  *         description: List of listings
  */
 router.get('/', apiRateLimiter, listingController.getListings);
+
+/**
+ * @swagger
+ * /listings/search:
+ *   get:
+ *     summary: Full-text search listings
+ *     tags: [Listings]
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Search results
+ */
+router.get('/search', apiRateLimiter, searchController.searchListings);
+
+/**
+ * @swagger
+ * /listings/filter:
+ *   get:
+ *     summary: Advanced filter listings
+ *     tags: [Listings]
+ *     responses:
+ *       200:
+ *         description: Filtered results
+ */
+router.get('/filter', apiRateLimiter, searchController.filterListings);
+
+/**
+ * @swagger
+ * /listings/nearby:
+ *   get:
+ *     summary: Get nearby listings (campus-based)
+ *     tags: [Listings]
+ *     parameters:
+ *       - in: query
+ *         name: campusId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Nearby listings
+ */
+router.get('/nearby', apiRateLimiter, searchController.getNearbyListings);
 
 /**
  * @swagger

@@ -7,6 +7,11 @@ import adminRoutes from './admin.routes.js';
 import xrplRoutes from "./xrpl.routes.js";
 import paymentRoutes from "./payments.routes.js";
 import webhooksRoutes from "./webhooks.routes.js";
+import userRoutes from "./user.routes.js";
+import analyticsRoutes from "./analytics.routes.js";
+import { searchController } from '../controllers/search.controller.js';
+import { apiRateLimiter } from '../middleware/index.js';
+
 const router = Router();
 
 // API version prefix
@@ -33,12 +38,23 @@ router.get("/debug-routes", (_req, res) => {
 });
 
 router.use(`/${API_VERSION}/auth`, authRoutes);
+router.use(`/${API_VERSION}/users`, userRoutes);
 router.use(`/${API_VERSION}/listings`, listingRoutes);
 router.use(`/${API_VERSION}/escrow`, escrowRoutes);
 router.use(`/${API_VERSION}/verification`, verificationRoutes);
 router.use(`/${API_VERSION}/admin`, adminRoutes);
+router.use(`/${API_VERSION}/analytics`, analyticsRoutes);
 router.use("/xrpl", xrplRoutes);
 router.use(`/${API_VERSION}/payments`, paymentRoutes);
 router.use(`/${API_VERSION}/webhooks`, webhooksRoutes);
+
+// Standalone category & campus lookup endpoints
+router.get(`/${API_VERSION}/categories`, apiRateLimiter, searchController.getCategories);
+router.get(`/${API_VERSION}/campuses`, apiRateLimiter, searchController.getCampuses);
+
+// Upload / image processing
+import uploadRoutes from './upload.routes.js';
+router.use(`/${API_VERSION}/upload`, uploadRoutes);
+
 console.log(paymentRoutes);
 export default router;

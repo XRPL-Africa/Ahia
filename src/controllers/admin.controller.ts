@@ -71,6 +71,22 @@ export const adminController = {
   }),
 
   /**
+   * Verify user (admin manually approves a user)
+   */
+  verifyUser: asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { id } = uuidParamSchema.parse(req.params);
+    const adminId = (req as unknown as { user: { id: string } }).user.id;
+
+    const user = await adminService.verifyUser(id, adminId);
+
+    res.json({
+      success: true,
+      message: 'User verified successfully',
+      data: { user },
+    });
+  }),
+
+  /**
    * Suspend user
    */
   suspendUser: asyncHandler(async (req: Request, res: Response): Promise<void> => {

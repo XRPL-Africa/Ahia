@@ -5,3 +5,6 @@ export * from './escrow.service.js';
 export * from './listing.service.js';
 export * from './verification.service.js';
 export * from './admin.service.js';
+export * from './user.service.js';
+export * from './analytics.service.js';
+export * from './search.service.js';
