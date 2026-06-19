@@ -194,6 +194,10 @@ model User {
   @@index([status])
   @@index([walletAddress])
   @@index([email])
+  @@index([role])
+  @@index([trustScore])
+  @@index([createdAt])
+  @@index([lastLoginAt])
   @@map("users")
 }
 
@@ -277,6 +281,11 @@ model Listing {
   @@index([category])
   @@index([listingType])
   @@index([createdAt])
+  @@index([buyNowPrice])
+  @@index([viewCount])
+  @@index([campusId, status])
+  @@index([campusId, category])
+  @@index([sellerId, status])
   @@map("listings")
 }
 
@@ -438,6 +447,9 @@ model Transaction {
   @@index([sellerId])
   @@index([type])
   @@index([status])
+  @@index([createdAt])
+  @@index([buyerId, status])
+  @@index([sellerId, status])
   @@map("transactions")
 }
 
@@ -494,6 +506,7 @@ model Dispute {
   @@index([escrowId])
   @@index([raisedById])
   @@index([status])
+  @@index([createdAt])
   @@map("disputes")
 }
 
@@ -521,6 +534,8 @@ model Review {
   @@index([reviewerId])
   @@index([revieweeId])
   @@index([rating])
+  @@index([revieweeId, rating])
+  @@index([createdAt])
   @@map("reviews")
 }
 
@@ -548,6 +563,8 @@ model Notification {
   @@index([userId])
   @@index([type])
   @@index([isRead])
+  @@index([userId, isRead])
+  @@index([createdAt])
   @@map("notifications")
 }
 
@@ -571,6 +588,8 @@ model AuditLog {
   @@index([action])
   @@index([entityType])
   @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([userId, createdAt])
   @@map("audit_logs")
 }
 

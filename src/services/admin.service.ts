@@ -220,6 +220,37 @@ export class AdminService {
   }
 
   /**
+   * Verify user (admin manually approves a user account)
+   */
+  async verifyUser(userId: string, adminId: string): Promise<unknown> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) throw Errors.NOT_FOUND('User');
+
+    if (user.status === UserStatus.VERIFIED) {
+      throw new ApiError(400, 'ALREADY_VERIFIED', 'User is already verified');
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: { status: UserStatus.VERIFIED },
+    });
+
+    // Also approve any pending verification document if present
+    await prisma.verification.updateMany({
+      where: { userId, status: 'PENDING' },
+      data: { status: 'APPROVED', reviewedBy: adminId, reviewedAt: new Date() },
+    });
+
+    await notificationService.notifyVerification(userId, 'APPROVED');
+    await cacheService.del(`user:${userId}`);
+    await cacheService.del(`user:profile:${userId}`);
+
+    logger.info(`User ${userId} verified by admin ${adminId}`);
+    return updated;
+  }
+
+  /**
    * Suspend user
    */
   async suspendUser(userId: string, reason: string, adminId: string): Promise<unknown> {

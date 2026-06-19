@@ -5,10 +5,8 @@ import swaggerJsdoc from "swagger-jsdoc";
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import webhookService
-from "./services/webhook.service.js";
+import webhookService from "./services/webhook.service.js";
 import webhooksRoutes from "./routes/webhooks.routes.js";
-// import { swaggerSpec } from "./config/swagger.js";
 // Load env
 dotenv.config();
 import route from "./routes/index.js";
@@ -22,9 +20,14 @@ import logger from './config/logger.js';
 // Middlewares
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { expressRateLimiter } from './middleware/rateLimiter.js';
+import {
+  xssSanitize,
+  sqlInjectionProtection,
+  securityAuditLog,
+  additionalSecurityHeaders,
+} from './middleware/security.js';
 
 // Routes
-// import routes from "./routes/listing.routes.js";
 import { swaggerUi } from './config/swagger.js';
 
 
@@ -47,6 +50,12 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Security middleware (must come before routes)
+app.use(additionalSecurityHeaders);
+app.use(xssSanitize);
+app.use(sqlInjectionProtection);
+app.use(securityAuditLog);
 
 app.use(expressRateLimiter);
 
