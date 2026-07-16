@@ -1,8 +1,9 @@
 'use client'
 
 import * as React from 'react'
+// @ts-ignore: package types may be missing in this environment
 import * as SelectPrimitive from '@radix-ui/react-select'
-import { LuCheck as CheckIcon, LuChevronDown as ChevronDownIcon, LuChevronUp as ChevronUpIcon } from 'react-icons/lu'
+// import { LuCheck as CheckIcon, LuChevronDown as ChevronDownIcon, LuChevronUp as ChevronUpIcon } from 'react-icons/lu'
 
 import { cn } from '@/lib/utils'
 
