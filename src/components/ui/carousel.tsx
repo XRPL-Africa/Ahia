@@ -7,7 +7,7 @@ import useEmblaCarousel, {
 import { LuArrowLeft as ArrowLeft, LuArrowRight as ArrowRight } from 'react-icons/lu'
 
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>

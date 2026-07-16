@@ -6,7 +6,7 @@ import {
 } from 'react-icons/lu'
 
 import { cn } from '@/lib/utils'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/Button'
 
 function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
   return (

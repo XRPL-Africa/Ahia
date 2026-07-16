@@ -7,7 +7,7 @@ import { LuPanelLeft as PanelLeftIcon } from 'react-icons/lu'
 
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import {
