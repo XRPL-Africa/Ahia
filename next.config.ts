@@ -28,10 +28,8 @@ const nextConfig: NextConfig = {
 
   // ─── Experimental ──────────────────────────────────────────────────────────
   experimental: {
-    // Turbopack for faster local dev (stable in Next 16)
-    turbo: {},
     // Partial prerendering — static shell + dynamic islands
-    ppr: true,
+    cacheComponents: true,
     // Tree-shake unused package exports
     optimizePackageImports: [
       "lucide-react",
